@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.IO;
+using System.Threading;
 
 //discord
 using Discord;
@@ -18,6 +19,22 @@ namespace Katie2
     [Name("BasicCommands")]
     public class Commands : ModuleBase
     {
+        private static ulong[] trusted = { 331159190288596993, 165111379496271872, 366298290377195522 }; //gonna take it 4 a walk
+        public static List<ulong> TrustedUsers = trusted.ToList(); //People who can do special stuff
+        [RequireUserPermission(GuildPermission.ManageMessages)]
+        [Command("clear")]
+        public async Task Clear(int numberMsgs)
+        {
+            var messages = Context.Channel.GetMessagesAsync(numberMsgs + 1).ToList().Result;
+            foreach (IReadOnlyCollection<IMessage> msgs in messages)
+            {
+                foreach (IMessage msg in msgs)
+                {
+                    await msg.DeleteAsync();
+                    Thread.Sleep(1);
+                }
+            }
+        }
         [Command("ping")]
         public async Task Ping()
         {
@@ -34,28 +51,16 @@ namespace Katie2
             }
             else
             {
-                await Context.Channel.SendMessageAsync("Sorry, $<@{Context.User.Id}> You may not Use that command");
+                await Context.Channel.SendMessageAsync($"Sorry, <@{Context.User.Id}> You may not Use that command"); //I fixed your string interpolation :P
             }
         }
         [Command("About")]
         public async Task About()
         {
             await Context.Channel.SendMessageAsync("```K.A.T.I.E        v.1.0" +
-            "Developer(s): Eva#9914```");
+            "Developer(s): Eva#9914, Mrcarrot#3305```"); //T
         }
-        // [Command("kick")]
-        /*public async Task KickUser(ulong userId, string reason)
-        {
-            var user = Program.Program.client.GetUser(userId) as IGuildUser;
-            if (((Context.User as IGuildUser).GuildPermissions.KickMembers || Context.User.Id == 366298290377195522) && (Program.client.CurrentUser as IGuildUser).GuildPermissions.KickMembers)
-            {
-                await user.KickAsync(reason);
-            }
-            else
-            {
-                await Context.Channel.SendMessageAsync("One of us doesn't have that permission...");
-            }
-        }*/
+
         [Command("Time")]
         public async Task GetTime()
         {
@@ -89,7 +94,8 @@ namespace Katie2
         [Command("Source")]
         public async Task GetSourceCode()
         {
-            await Context.Channel.SendFileAsync(@"C:\Users\Kerbinorbiter\Documents\K.A.T.I.E\Katie2\Source.cs", "K.A.T.I.E bot source code:");
+            await Context.Channel.SendFileAsync(@"D:\KATIEBOT\Katie2\Commands.cs", "K.A.T.I.E. Command Source Code"); //sourced from itself to ensure editing it doesnt mean having to copy it over
+            await Context.Channel.SendFileAsync(@"D:\KATIEBOT\Program.cs", "K.A.T.I.E. Boot up code"); //sourced from out side to keep yer dirty mits off my token
         }
         [Command("Flip Coin")]
         public async Task CoinFlip(string HeadsOrTails)
@@ -231,6 +237,69 @@ namespace Katie2
             var suggestion = challengeSuggestion;
             var userSuggestion = Context.User;
             await channel.SendMessageAsync($"Suggestion by: {userSuggestion.Username}#{userSuggestion.Discriminator}, {challengeSuggestion}");
+        }
+        [Command("Broadcast")]
+        public async Task BroadcastMessage(string chnStr, [Remainder]string broadcastMessage)
+        {
+            if (!TrustedUsers.Contains(Context.User.Id)) return; //https://tenor.com/view/im-gonna-stop-you-right-there-gif-10559828
+            var channel = Program._client.GetChannel(CommandUtils.GetID(chnStr)) as SocketTextChannel;
+            await channel.SendMessageAsync(broadcastMessage);
+        }
+        [Command("Ban me")]
+        //for dumb people
+        public async Task BanSelf() //why am i doing this lmao
+        {
+            var dumbPerson = Context.Guild.GetUsersAsync().Result.ToList().FirstOrDefault(x => x.Id == Context.User.Id);
+            await dumbPerson.BanAsync();
+            await Context.Channel.SendMessageAsync($"User: **{dumbPerson.Username}#{dumbPerson.Discriminator} wanted to be banned. The ever-merciful bot granted it.");
+        }
+        [Command("Choose")]
+        public async Task Choose(string opt1, string opt2)
+        {
+            Random rnd = new Random();
+            RandomNumberGenerator cryptoRnd = RandomNumberGenerator.Create();
+            int output = rnd.Next(1, 3);
+            if(output < 2.5)
+            {
+                await Context.Channel.SendMessageAsync("I Choose: " + opt1);
+            } else
+            {
+                await Context.Channel.SendMessageAsync("I Choose: " + opt2);
+            }
+        }
+        [Command("GetKerbBackgound")]
+        public async Task GetMyBackground()
+        {
+            await Context.Channel.SendFileAsync(@"C:\Users\Kerbinorbiter\Documents\Cursed#\background.jpg", "Here is Kerb's Background");
+        }
+        [Command("GetFile")]
+        public async Task GetFile(string fileLocation)
+        {
+            if(Context.User.Id == 331159190288596993)
+            {
+                //allow because its me and i should only access my files
+                try {
+                    await Context.Channel.SendFileAsync($@"{fileLocation}", "Here is your file Kerb");
+                } catch
+                {
+                    await Context.Channel.SendMessageAsync("Cannot find this...");
+                }
+                
+            } else
+            {
+                await Context.Channel.SendMessageAsync("You may not access this command"); //don't want others snooping in my stuffs
+            }
+        }
+        [Command("getKOS")]
+        public async Task getKOSScript(string scriptName)
+        {
+            try { 
+                await Context.Channel.SendFileAsync($@"D:\kOS\public{scriptName}", "Here is your kOS file");
+            } catch
+            {
+                await Context.Channel.SendMessageAsync("ERROR"); //checks to see if we can find the file then errors if we cant
+            }
+
         }
     }
     public class CommandUtils
