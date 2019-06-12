@@ -177,11 +177,7 @@ namespace Katie2
              */
             var warned = Program._client.GetUser(usrID) as IGuildUser;
             var authority = Context.Message.Author;
-            var embedWarn = new EmbedBuilder
-            {
-                Color = Color.DarkRed
-            };
-            embedWarn.Description = "User: " + warned.Username + "#" + warned.Discriminator + " By: " + authority.Username + "#" + authority.Discriminator + " For: " + warnReason;
+            await Context.Channel.SendMessageAsync("Warn: " + warned.Username + "#" + warned.Discriminator.ToString() + " For: " + warnReason);
 
         }
     }
