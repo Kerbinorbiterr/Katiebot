@@ -42,7 +42,7 @@ namespace Katie2
             // environment variables, you may find more information on the 
             // Internet or by using other methods such as reading from 
             // a configuration.
-            await _client.LoginAsync(TokenType.Bot, "NTg4MTE1NTQ3OTEzMzIyNTM3.XQAiVQ.qD-nOJ0er3Ja1OWlIuiDMDuywBk");
+            await _client.LoginAsync(TokenType.Bot, "");
             await _client.StartAsync();
 
             // Block this task until the program is closed.
