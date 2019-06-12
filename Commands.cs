@@ -168,14 +168,14 @@ namespace Katie2
             }
         }
         [Command("Warn")]
-        public async Task WarnUser(ulong usrID, string warnReason)
+        public async Task WarnUser(string user, string warnReason)
         {
             /*setup variables such as user id, moderator id and discriminators to allow for the bot to do the following:
              * 1: display a message which states that user x has been warned by user y for doing z
              * 2: log that into a specific channel
              * 3: DM the user being warned that they have been warned in server x by user y for doing z
              */
-            var warned = Program._client.GetUser(usrID) as IGuildUser;
+            var warned = Program._client.GetUser(CommandUtils.GetID(user)) as IGuildUser;
             var authority = Context.Message.Author;
             var embedWarn = new EmbedBuilder
             {
