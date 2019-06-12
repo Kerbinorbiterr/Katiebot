@@ -185,5 +185,26 @@ namespace Katie2
 
         }
     }
-
+    public class CommandUtils
+    {
+        public static ulong GetID(string source)
+        {
+            ulong Id;
+            string IdStr = source
+                .Replace("<", "")
+                .Replace("@", "")
+                .Replace("!", "")
+                .Replace("#", "")
+                .Replace("&", "")
+                .Replace(">", ""); //A user mention is <@Id>, channels are <#Id>, etc. so we're removing those extra chars
+            bool ok = ulong.TryParse(IdStr, out Id);
+            if (ok)
+                return Id;
+            else
+            {
+                throw new FormatException(); //The string wasn't formatted correctly if the ID was invalid
+                return 0;
+            }
+        }   
+    }
 }
